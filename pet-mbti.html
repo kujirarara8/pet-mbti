@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>うちのコMBTI診断</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@400;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FDF6EE;
+    --soft-peach: #F9EBD8;
+    --warm-tan: #E8C99A;
+    --amber: #C8873A;
+    --deep-brown: #4A2E1A;
+    --mid-brown: #7A4F2A;
+    --sage: #8BAF88;
+    --pale-sage: #D4E8D2;
+    --text: #3A2518;
+    --light-text: #7A6050;
+    --radius: 20px;
+  }
+
+  body {
+    background: var(--cream);
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Paw print background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle 6px at 20% 15%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 4px at 17% 11%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 4px at 23% 11%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 3px at 14% 13%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 6px at 75% 60%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 4px at 72% 56%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 4px at 78% 56%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 3px at 70% 58%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 5px at 50% 85%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 3px at 47% 81%, var(--warm-tan) 100%, transparent 100%),
+      radial-gradient(circle 3px at 53% 81%, var(--warm-tan) 100%, transparent 100%);
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    text-align: center;
+    padding: 40px 20px 32px;
+  }
+
+  .hero-icon {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 12px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .hero h1 {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--deep-brown);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .hero h1 span {
+    color: var(--amber);
+  }
+  .hero p {
+    font-size: 14px;
+    color: var(--light-text);
+    line-height: 1.7;
+  }
+
+  /* ===== PROGRESS ===== */
+  .progress-wrap {
+    margin: 0 0 28px;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--light-text);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .progress-bar {
+    height: 8px;
+    background: var(--soft-peach);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--warm-tan), var(--amber));
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ===== CARD ===== */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: 0 2px 20px rgba(74,46,26,0.08);
+    margin-bottom: 16px;
+    animation: fadeUp 0.3s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-num {
+    display: inline-block;
+    background: var(--amber);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .q-text {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--deep-brown);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  /* ===== CHOICES ===== */
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .choice-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--cream);
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .choice-btn:hover {
+    border-color: var(--warm-tan);
+    background: var(--soft-peach);
+    transform: translateX(3px);
+  }
+  .choice-btn.selected {
+    border-color: var(--amber);
+    background: #FFF3E0;
+  }
+
+  .choice-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .choice-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ===== NAV BUTTONS ===== */
+  .nav {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .btn-back {
+    flex: 0 0 auto;
+    background: none;
+    border: 2px solid var(--warm-tan);
+    color: var(--mid-brown);
+    border-radius: 12px;
+    padding: 13px 20px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-back:hover {
+    background: var(--soft-peach);
+  }
+  .btn-next {
+    flex: 1;
+    background: var(--amber);
+    border: none;
+    color: #fff;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .btn-next.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .btn-next.active:hover {
+    background: var(--mid-brown);
+    transform: translateY(-1px);
+  }
+
+  /* ===== START SCREEN ===== */
+  .start-screen {
+    text-align: center;
+  }
+  .start-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    box-shadow: 0 2px 20px rgba(74,46,26,0.08);
+    margin-bottom: 20px;
+  }
+  .start-info {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+  }
+  .start-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .start-info-item .si-icon {
+    font-size: 28px;
+  }
+  .start-info-item span {
+    font-size: 12px;
+    color: var(--light-text);
+    font-weight: 500;
+  }
+  .btn-start {
+    width: 100%;
+    background: linear-gradient(135deg, var(--amber), #D4993F);
+    border: none;
+    color: #fff;
+    border-radius: 16px;
+    padding: 18px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(200,135,58,0.35);
+  }
+  .btn-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(200,135,58,0.45);
+  }
+
+  /* ===== RESULT SCREEN ===== */
+  .result-screen { display: none; }
+  .result-badge {
+    text-align: center;
+    padding: 20px 0 10px;
+  }
+  .result-badge .paw {
+    font-size: 56px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  .result-label {
+    font-size: 13px;
+    color: var(--light-text);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+  .result-type {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 52px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 4px;
+    line-height: 1.1;
+  }
+  .result-name {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--deep-brown);
+    margin-top: 4px;
+  }
+  .result-tagline {
+    font-size: 13px;
+    color: var(--light-text);
+    margin-top: 6px;
+  }
+
+  .result-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: 0 2px 20px rgba(74,46,26,0.08);
+    margin-top: 20px;
+  }
+  .result-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .result-desc {
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--text);
+  }
+
+  .trait-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .trait-item {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .trait-item .ti-label {
+    font-size: 10px;
+    color: var(--light-text);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .trait-item .ti-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--deep-brown);
+  }
+
+  .axis-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .axis-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .axis-lbl {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--mid-brown);
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .axis-track {
+    flex: 1;
+    height: 10px;
+    background: var(--soft-peach);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .axis-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--warm-tan), var(--amber));
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+    width: 0;
+  }
+  .axis-fill.right {
+    margin-left: auto;
+    background: linear-gradient(270deg, var(--warm-tan), var(--amber));
+  }
+
+  .compat-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .compat-tag {
+    background: var(--pale-sage);
+    color: #3A5A38;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 99px;
+  }
+
+  .btn-retry {
+    width: 100%;
+    background: none;
+    border: 2px solid var(--amber);
+    color: var(--amber);
+    border-radius: 16px;
+    padding: 16px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+  }
+  .btn-retry:hover {
+    background: var(--soft-peach);
+  }
+
+  .share-area {
+    margin-top: 16px;
+    background: var(--soft-peach);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .share-text {
+    font-size: 13px;
+    color: var(--mid-brown);
+    margin-bottom: 12px;
+  }
+  .share-copy-btn {
+    background: var(--deep-brown);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .share-copy-btn:hover { background: var(--mid-brown); }
+  .copy-done { display: none; color: var(--sage); font-size: 13px; font-weight: 700; margin-top: 8px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HERO (always visible) -->
+  <div class="hero">
+    <span class="hero-icon">🐾</span>
+    <h1>うちのコ<span>MBTI</span>診断</h1>
+    <p>15の質問に答えて<br>あなたのペットのMBTIを見つけよう</p>
+  </div>
+
+  <!-- START -->
+  <div id="screen-start" class="screen active start-screen">
+    <div class="start-card">
+      <div class="start-info">
+        <div class="start-info-item"><span class="si-icon">📋</span><span>15問</span></div>
+        <div class="start-info-item"><span class="si-icon">⏱️</span><span>約3分</span></div>
+        <div class="start-info-item"><span class="si-icon">🔬</span><span>16タイプ</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--light-text);line-height:1.8;margin-bottom:24px;">
+        いつも一緒にいるあなただから<br>
+        ペットの気持ち、代わりに答えてあげてね🐶🐱
+      </p>
+      <button class="btn-start" onclick="startQuiz()">診断スタート ▶</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progress-text">Question 1 / 15</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="card" id="question-card">
+      <span class="q-num" id="q-num">Q1</span>
+      <div class="q-text" id="q-text"></div>
+      <div class="choices" id="choices"></div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" id="btn-back" onclick="goBack()" style="display:none">◀ もどる</button>
+      <button class="btn-next" id="btn-next" onclick="goNext()">つぎへ ▶</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="result-badge">
+      <div class="paw">🐾</div>
+      <div class="result-label">あなたのペットのMBTIは</div>
+      <div class="result-type" id="res-type">ENFP</div>
+      <div class="result-name" id="res-name">運動家</div>
+      <div class="result-tagline" id="res-tagline"></div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-section-title">🐾 ペット性格診断</div>
+      <div class="result-desc" id="res-desc"></div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-section-title">✨ 強み・弱み</div>
+      <div class="trait-grid" id="res-traits"></div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-section-title">📊 4つの軸スコア</div>
+      <div class="axis-bars" id="res-axes"></div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-section-title">💕 相性のいい飼い主タイプ</div>
+      <div class="compat-list" id="res-compat"></div>
+    </div>
+
+    <div class="share-area">
+      <div class="share-text">📣 結果をシェアしよう！</div>
+      <button class="share-copy-btn" onclick="copyResult()">テキストをコピー</button>
+      <div class="copy-done" id="copy-done">✅ コピーしました！</div>
+    </div>
+
+    <button class="btn-retry" onclick="retry()">🔄 もう一度診断する</button>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  // E/I
+  {
+    axis: 'EI',
+    direction: 'E',
+    text: '来客があったとき、あなたのペットはどうする？',
+    choices: [
+      { icon: '🐕', text: 'すぐに近寄っていって、全力でアピールする', val: 2 },
+      { icon: '🐈', text: '様子を見てから、ゆっくり近づく', val: 1 },
+      { icon: '🐇', text: '距離を置いて、じっと観察する', val: 0 },
+    ]
+  },
+  {
+    axis: 'EI',
+    direction: 'E',
+    text: '一人でお留守番しているとき、どんな様子？',
+    choices: [
+      { icon: '😢', text: 'ドアの前でずっと待っていたり、鳴き続ける', val: 2 },
+      { icon: '😐', text: 'しばらく待った後、寝てやり過ごす', val: 1 },
+      { icon: '😎', text: '一人でマイペースに過ごしている', val: 0 },
+    ]
+  },
+  {
+    axis: 'EI',
+    direction: 'E',
+    text: '他のペット（犬・猫など）に会ったとき、どんな反応？',
+    choices: [
+      { icon: '🤝', text: 'すぐに近づいて一緒に遊ぼうとする', val: 2 },
+      { icon: '👀', text: '少し観察してから、接触を試みる', val: 1 },
+      { icon: '🙈', text: '近づかず、一定の距離を保つ', val: 0 },
+    ]
+  },
+  // S/N
+  {
+    axis: 'SN',
+    direction: 'N',
+    text: '遊んでいるとき、どんな様子が多い？',
+    choices: [
+      { icon: '🎯', text: 'おもちゃをしっかり咥えて、確実に仕留めようとする', val: 0 },
+      { icon: '🌀', text: '気まぐれにふらふら動き回り、思わぬ動きをする', val: 2 },
+      { icon: '😐', text: 'どちらでもない', val: 1 },
+    ]
+  },
+  {
+    axis: 'SN',
+    direction: 'N',
+    text: 'いつものルーティン（ごはん・散歩の時間）が変わったとき？',
+    choices: [
+      { icon: '😤', text: 'ソワソワして、いつもと違うことに気づいてアピールする', val: 0 },
+      { icon: '🌊', text: 'わりと気にせず、その場の流れに乗れる', val: 2 },
+      { icon: '🤔', text: 'しばらく迷った後、対応する', val: 1 },
+    ]
+  },
+  {
+    axis: 'SN',
+    direction: 'N',
+    text: 'あなたの気分や体調の変化に、ペットはどう反応する？',
+    choices: [
+      { icon: '🔮', text: '何も言ってないのに気づいて、そっと寄り添ってくれる', val: 2 },
+      { icon: '🤝', text: 'こちらから働きかけたときに反応する', val: 1 },
+      { icon: '💤', text: 'あまり気にしていなさそう', val: 0 },
+    ]
+  },
+  // T/F
+  {
+    axis: 'TF',
+    direction: 'F',
+    text: 'あなたが叱ったとき、ペットはどんな様子？',
+    choices: [
+      { icon: '🥺', text: 'シュンとして、しばらく落ち込んでいる', val: 2 },
+      { icon: '😔', text: 'その場では神妙だが、しばらくすると元通り', val: 1 },
+      { icon: '😶', text: 'あまり気にしてなさそう、すぐに普通に戻る', val: 0 },
+    ]
+  },
+  {
+    axis: 'TF',
+    direction: 'F',
+    text: 'おやつや遊びをせがむとき、どんな戦略を使う？',
+    choices: [
+      { icon: '👁️', text: '上目遣いや甘え声で感情に訴えてくる', val: 2 },
+      { icon: '🔄', text: 'お座りなど「できること」をして交渉してくる', val: 0 },
+      { icon: '🤗', text: '体をすり寄せて存在感をアピールする', val: 1 },
+    ]
+  },
+  {
+    axis: 'TF',
+    direction: 'F',
+    text: '家族が喧嘩しているとき、ペットはどうしてる？',
+    choices: [
+      { icon: '😟', text: '不安そうにそばに来て、仲裁しようとする', val: 2 },
+      { icon: '🙈', text: '別の部屋に移動してやり過ごす', val: 0 },
+      { icon: '😐', text: '特に気にせず、普通にしている', val: 1 },
+    ]
+  },
+  // J/P
+  {
+    axis: 'JP',
+    direction: 'J',
+    text: 'ごはんやお散歩の時間に対してどんな様子？',
+    choices: [
+      { icon: '⏰', text: 'ぴったりの時間に「まだ？」とアピールしてくる', val: 2 },
+      { icon: '🕐', text: 'だいたいの時間になると動き出す', val: 1 },
+      { icon: '🌊', text: 'あまり時間を気にしていない', val: 0 },
+    ]
+  },
+  {
+    axis: 'JP',
+    direction: 'J',
+    text: 'お気に入りの場所（寝床・定位置）はある？',
+    choices: [
+      { icon: '🏠', text: 'ここ！という決まった場所があって、毎回そこに行く', val: 2 },
+      { icon: '🗺️', text: 'だいたい決まっているが、気分で変えることもある', val: 1 },
+      { icon: '🎲', text: 'その日の気分でバラバラ、いつも違う場所にいる', val: 0 },
+    ]
+  },
+  {
+    axis: 'JP',
+    direction: 'J',
+    text: '遊んでいる最中におもちゃを取り替えようとしたら？',
+    choices: [
+      { icon: '😤', text: '今のおもちゃに集中していて、なかなか切り替えない', val: 2 },
+      { icon: '🔄', text: 'しばらく抵抗した後、新しいものに切り替える', val: 1 },
+      { icon: '✨', text: 'すぐ新しいおもちゃに飛びつく', val: 0 },
+    ]
+  },
+  // 追加・補足
+  {
+    axis: 'EI',
+    direction: 'E',
+    text: '知らない場所に連れて行ったとき、どんな行動をとる？',
+    choices: [
+      { icon: '🔍', text: 'あちこち探索して、全部チェックしようとする', val: 2 },
+      { icon: '🐾', text: 'あなたのそばにいながら、少しずつ探索する', val: 1 },
+      { icon: '🙈', text: 'びびって隠れる or 動かない', val: 0 },
+    ]
+  },
+  {
+    axis: 'SN',
+    direction: 'N',
+    text: '新しいおもちゃを渡したとき、どんな使い方をする？',
+    choices: [
+      { icon: '🎯', text: '想定通りの使い方で、ちゃんと遊ぶ', val: 0 },
+      { icon: '💡', text: '予想外の使い方を発見する（ひっくり返す、枕にするなど）', val: 2 },
+      { icon: '😐', text: 'しばらく匂いを嗅いで、少し遊んでやめる', val: 1 },
+    ]
+  },
+  {
+    axis: 'TF',
+    direction: 'F',
+    text: 'あなたが泣いていたり、体調が悪いとき、ペットはどうする？',
+    choices: [
+      { icon: '🤗', text: 'すぐそばに来て、寄り添ってくれる', val: 2 },
+      { icon: '👀', text: '様子を見ながら、そっと近くにいる', val: 1 },
+      { icon: '💤', text: 'いつもと同じ、特に変わらない', val: 0 },
+    ]
+  },
+];
+
+const mbtiTypes = {
+  ENTJ: { name: '指揮官', tagline: '堂々とリードする頼もしいコ', desc: '自信に満ちていて、いつでも場の中心！指示を出したり、自分のペースで物事を進めるのが大得意。遊びも「俺が主導権を握る」スタイルで、意志の強さが全面に出ます。賢くて行動派、少し頑固なところもあるけど、それが魅力。', traits: ['リーダーシップ抜群', '意志が強い', 'マイペース', '遊びに本気'], compat: ['INFP', 'INTP', 'ENFP'] },
+  ENTP: { name: '討論者', tagline: '予測不能なトリックスター', desc: '好奇心旺盛で、いつも新しいことに挑戦中！おもちゃの想定外な使い方を発見したり、遊びのルールを勝手に変えたりする天才。頭の回転が速く、飼い主の次の行動を先読みする賢さも持ちます。飽き性なので刺激が大事。', traits: ['好奇心の塊', '発想力が豊か', '飽き性', '頭が切れる'], compat: ['INFJ', 'INTJ', 'ENFJ'] },
+  ENFJ: { name: '主人公', tagline: 'みんなを笑顔にするムードメーカー', desc: '家族の空気を読む天才で、誰かが落ち込んでいると真っ先に気づきます。人が大好きで、来客にも積極的！存在しているだけで場が明るくなるカリスマ系。自己犠牲になりがちなので、ちゃんと一人時間も大切に。', traits: ['共感力が高い', '愛情深い', '場を盛り上げる', '甘えん坊'], compat: ['INFP', 'ISFP', 'INTP'] },
+  ENFP: { name: '運動家', tagline: '情熱いっぱいの自由な冒険者', desc: 'エネルギッシュで何にでも全力投球！新しい出会いや遊びに目をキラキラさせます。感受性が豊かで、あなたの感情変化に敏感。飽きやすいけど、愛情表現はとびきり豊か。自由を愛するので、のびのびした環境が最高に合う。', traits: ['情熱的', '愛情豊か', '感受性が高い', '飽き性'], compat: ['INTJ', 'INFJ', 'ENFJ'] },
+  INTJ: { name: '建築家', tagline: '静かに観察する孤高の天才', desc: '感情を大げさに見せず、クールに振る舞うけど、内心はしっかり観察している。戦略家タイプで、おもちゃの仕組みを理解したり、自分の要求を賢く伝える術を知っている。一人時間が大切で、べったりより適度な距離感を好みます。', traits: ['観察眼が鋭い', '独立心が強い', '自分のペース', 'クール系'], compat: ['ENFP', 'ENTP', 'INFP'] },
+  INTP: { name: '論理学者', tagline: '不思議な世界に生きる哲学者', desc: 'いつも何か考えているような、哲学者ペット。一人でじっくり遊ぶのが好きで、物事の仕組みを探るのに没頭する。べたべたはしないけど、信頼した人への愛情は深い。天才的な発想で、飼い主が思いもよらない行動をすることも。', traits: ['じっくり考える', '独創的', '単独行動派', '信頼への愛情は深い'], compat: ['ENTJ', 'ENFJ', 'ESTJ'] },
+  INFJ: { name: '提唱者', tagline: '深い絆を育てる静かな守護者', desc: '数少ない信頼する相手にだけ、深い愛情を見せる希少タイプ。飼い主の感情を敏感に察知して、そっと寄り添います。一見おとなしく見えるが、心の中は豊か。無理させずに、安心できる環境を作ってあげることが大切。', traits: ['感情を読む力が高い', '絆が深い', '内向的だが愛情深い', 'デリケート'], compat: ['ENFP', 'ENTP', 'ESFJ'] },
+  INFP: { name: '仲介者', tagline: '繊細な心を持つ夢見がちなコ', desc: '感受性が豊かで、場の空気や感情の変化に敏感。甘えたいときと一人になりたいときがはっきりしていて、そのギャップが愛おしい。想像力旺盛で、一人遊びでも独自の世界を楽しんでいます。叱られると深く傷つくので、優しく接してね。', traits: ['感受性が高い', '独自の世界観', '繊細', '甘えたがり'], compat: ['ENTJ', 'ENFJ', 'ESFJ'] },
+  ESTJ: { name: '幹部', tagline: 'ルールを守る秩序の番人', desc: '毎日のルーティンを大切にする、几帳面なペット。ごはんの時間も散歩のルートも「これが正解」という自分なりのルールがある。番犬・番猫タイプで、家を守る使命感も強い。変化より安定を好む、頼もしい存在。', traits: ['几帳面', 'ルーティン好き', '責任感がある', '変化が苦手'], compat: ['INFP', 'INTP', 'ISFP'] },
+  ESFJ: { name: '領事', tagline: 'みんなに愛されるお世話好き', desc: '家族みんなのことが大好きで、誰かが寂しそうにしていると放っておけない。社交的で来客にも愛想が良く、その場を和ませる才能がある。かまってもらうのが大好きで、甘え上手。人の感情に敏感なので、叱るときは優しくね。', traits: ['愛情深い', '甘え上手', '社交的', '人の感情に敏感'], compat: ['INFP', 'INFJ', 'ISFP'] },
+  ISTJ: { name: '管理者', tagline: '堅実で信頼できる忠実なパートナー', desc: '決めたルーティンを頑固に守る、几帳面で誠実なペット。信頼関係ができると揺るがない忠誠心を見せる。変化を好まず、慣れた環境と慣れた人が一番。地味に見えて、長年の付き合いで分かる深い愛情を持つタイプ。', traits: ['忠誠心が高い', '几帳面', '変化が苦手', '信頼できる'], compat: ['ENFP', 'ESFJ', 'ESTJ'] },
+  ISFJ: { name: '擁護者', tagline: '静かに愛し続ける献身家', desc: 'ひかえめだけど、愛情は誰にも負けない。飼い主のそばにいつもいて、さりげなく寄り添ってくれる。人見知りだが、信頼した人への献身は本物。傷つきやすい繊細さがあるので、安心できる環境が大切。縁の下の力持ち的存在。', traits: ['献身的', '繊細', '人見知り', '長所は深い愛情'], compat: ['ENFP', 'ENTP', 'ESFP'] },
+  ESTP: { name: '起業家', tagline: '今この瞬間に生きる行動派', desc: '理屈より行動！瞬発力と適応力の塊で、どんな状況でもすぐに動き出す。遊びでも散歩でも全力投球。飽き性で刺激を求めるので、変化に富んだ生活がピッタリ。しつけより経験で学ぶタイプなので、楽しい体験をたくさんさせてあげて。', traits: ['行動力がある', '瞬発力抜群', '飽き性', '刺激が大好き'], compat: ['ISFJ', 'ISTJ', 'INFJ'] },
+  ESFP: { name: 'エンターテイナー', tagline: '場を盛り上げる生粋の陽キャ', desc: 'どこにいても場の主役になれる、明るくて愛嬌たっぷりのペット。誰とでも仲良くなれる社交性があり、一緒にいるだけで幸せな気持ちになれる。今を楽しむ天才で、難しいことは考えず純粋に生きている。その笑顔（表情）に癒される。', traits: ['明るい', '社交的', '楽観的', '今を楽しむ'], compat: ['ISFJ', 'ISTJ', 'INFP'] },
+  ISTP: { name: '巨匠', tagline: 'クールな職人気質のひとりっ子', desc: '感情をあまり表に出さず、黙々と自分のペースで行動する職人タイプ。メカニカルなおもちゃや仕組みへの興味が強く、一人遊びも上手。干渉されるのは好きじゃないが、信頼するとしっかり応えてくれる。クールさが魅力。', traits: ['クール', '一人遊びが得意', '干渉されるのが苦手', '信頼への反応は確か'], compat: ['ESFJ', 'ESTJ', 'ENFP'] },
+  ISFP: { name: '冒険家', tagline: '感性豊かなアーティスト気質', desc: '独特の感性と美意識を持つ、自由な魂のペット。強制されるのが苦手で、自分のペースを大切にする。自然やにおい、テクスチャーへの感受性が高い。愛情表現はシャイだが、信頼した人への絆は本物。静かに存在感を放つ美しいコ。', traits: ['感性が豊か', '自由を愛する', 'シャイだが愛情深い', '独特の個性'], compat: ['ESTJ', 'ESFJ', 'ENFJ'] },
+};
+
+let current = 0;
+let answers = [];
+
+// Score accumulators
+let scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+
+function startQuiz() {
+  document.getElementById('screen-start').classList.remove('active');
+  document.getElementById('screen-quiz').classList.add('active');
+  answers = new Array(questions.length).fill(null);
+  scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+  current = 0;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  document.getElementById('q-num').textContent = `Q${current + 1}`;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('progress-text').textContent = `Question ${current + 1} / ${questions.length}`;
+  const pct = Math.round((current / questions.length) * 100);
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = `${pct}%`;
+
+  document.getElementById('btn-back').style.display = current > 0 ? 'block' : 'none';
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.classList.remove('active');
+  nextBtn.textContent = current === questions.length - 1 ? '結果を見る 🐾' : 'つぎへ ▶';
+
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    if (answers[current] !== null && answers[current].idx === i) btn.classList.add('selected');
+    btn.innerHTML = `<span class="choice-icon">${c.icon}</span><span class="choice-text">${c.text}</span>`;
+    btn.onclick = () => selectChoice(i, c.val);
+    choicesEl.appendChild(btn);
+  });
+
+  // Re-enable next if already answered
+  if (answers[current] !== null) nextBtn.classList.add('active');
+}
+
+function selectChoice(idx, val) {
+  answers[current] = { idx, val };
+  document.querySelectorAll('.choice-btn').forEach((b, i) => {
+    b.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('btn-next').classList.add('active');
+}
+
+function goNext() {
+  if (answers[current] === null) return;
+  if (current === questions.length - 1) {
+    showResult();
+  } else {
+    current++;
+    renderQuestion();
+  }
+}
+
+function goBack() {
+  if (current > 0) { current--; renderQuestion(); }
+}
+
+function computeType() {
+  // Reset
+  let ei = 0, sn = 0, tf = 0, jp = 0;
+  const qEI = [], qSN = [], qTF = [], qJP = [];
+  questions.forEach((q, i) => {
+    if (q.axis === 'EI') qEI.push(answers[i].val);
+    if (q.axis === 'SN') qSN.push(answers[i].val);
+    if (q.axis === 'TF') qTF.push(answers[i].val);
+    if (q.axis === 'JP') qJP.push(answers[i].val);
+  });
+
+  // Average scores (0-2 scale, 2=E/N/F/J direction)
+  const avg = arr => arr.reduce((a,b)=>a+b,0) / arr.length;
+  const eiAvg = avg(qEI); // high = E
+  const snAvg = avg(qSN); // high = N
+  const tfAvg = avg(qTF); // high = F
+  const jpAvg = avg(qJP); // high = J
+
+  const type = 
+    (eiAvg >= 1 ? 'E' : 'I') +
+    (snAvg >= 1 ? 'N' : 'S') +
+    (tfAvg >= 1 ? 'F' : 'T') +
+    (jpAvg >= 1 ? 'J' : 'P');
+
+  return { type, eiAvg, snAvg, tfAvg, jpAvg };
+}
+
+function showResult() {
+  document.getElementById('screen-quiz').classList.remove('active');
+  document.getElementById('screen-result').classList.add('active');
+
+  const { type, eiAvg, snAvg, tfAvg, jpAvg } = computeType();
+  const info = mbtiTypes[type];
+
+  document.getElementById('res-type').textContent = type;
+  document.getElementById('res-name').textContent = `「${info.name}」タイプ`;
+  document.getElementById('res-tagline').textContent = info.tagline;
+  document.getElementById('res-desc').textContent = info.desc;
+
+  // Traits
+  const traitsEl = document.getElementById('res-traits');
+  traitsEl.innerHTML = info.traits.map(t => `
+    <div class="trait-item">
+      <div class="ti-label">特徴</div>
+      <div class="ti-val">✦ ${t}</div>
+    </div>
+  `).join('');
+
+  // Axes
+  const axesEl = document.getElementById('res-axes');
+  const axes = [
+    { left: 'I', right: 'E', val: eiAvg / 2 },
+    { left: 'S', right: 'N', val: snAvg / 2 },
+    { left: 'T', right: 'F', val: tfAvg / 2 },
+    { left: 'P', right: 'J', val: jpAvg / 2 },
+  ];
+  axesEl.innerHTML = axes.map(a => `
+    <div class="axis-row">
+      <span class="axis-lbl">${a.left}</span>
+      <div class="axis-track">
+        <div class="axis-fill" style="width:${Math.round(a.val*100)}%"></div>
+      </div>
+      <span class="axis-lbl">${a.right}</span>
+    </div>
+  `).join('');
+
+  // Compat
+  document.getElementById('res-compat').innerHTML = info.compat.map(c => 
+    `<span class="compat-tag">✦ ${c}</span>`
+  ).join('');
+
+  window._resultType = type;
+  window._resultName = info.name;
+  window._resultTagline = info.tagline;
+}
+
+function retry() {
+  document.getElementById('screen-result').classList.remove('active');
+  document.getElementById('screen-start').classList.add('active');
+}
+
+function copyResult() {
+  const text = `🐾 うちのコMBTI診断\n\nうちのコのMBTIは「${window._resultType}（${window._resultName}）」！\n${window._resultTagline}\n\n#うちのコMBTI #ペット診断`;
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('copy-done').style.display = 'block';
+    setTimeout(() => { document.getElementById('copy-done').style.display = 'none'; }, 2000);
+  });
+}
+</script>
+</body>
+</html>
